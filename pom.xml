@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.nova</groupId>
+    <artifactId>rfid-tracker</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>SCM Subsystem 11 — RFID Tracker (Team NOVA)</name>
+    <description>
+        Barcode and RFID tracking subsystem for the SCM Supply Chain System.
+        Integrates with the shared OOAD database via the DB team JAR.
+        Falls back to scm_rfid_db for standalone/demo mode.
+    </description>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <!-- MySQL JDBC Driver — aligned to DB team version -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>9.3.0</version>
+        </dependency>
+
+        <!-- SLF4J simple logger (matches DB team dependency) -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.17</version>
+        </dependency>
+
+        <!-- JUnit 5 for unit tests -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--
+          DB team integration JAR (database-module-1.0.0-SNAPSHOT-standalone.jar).
+          Install locally first:
+            mvn install:install-file \
+              -Dfile=lib/database-module-1.0.0-SNAPSHOT-standalone.jar \
+              -DgroupId=com.jackfruit.scm \
+              -DartifactId=database-module \
+              -Dversion=1.0.0-SNAPSHOT \
+              -Dpackaging=jar
+        -->
+        <dependency>
+            <groupId>com.jackfruit.scm</groupId>
+            <artifactId>database-module</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <!--
+          SCM Exception Handler JAR (scm-exception-handler-v3.jar).
+          Install locally first:
+            mvn install:install-file \
+              -Dfile=lib/scm-exception-handler-v3.jar \
+              -DgroupId=com.scm \
+              -DartifactId=scm-exception-handler \
+              -Dversion=3.0 \
+              -Dpackaging=jar
+        -->
+        <dependency>
+            <groupId>com.scm</groupId>
+            <artifactId>scm-exception-handler</artifactId>
+            <version>3.0</version>
+        </dependency>
+
+        <!--
+          JNA — required by the SCM Exception Handler for Windows Event Viewer.
+          Install locally first:
+            mvn install:install-file -Dfile=lib/jna-5.18.1.jar \
+              -DgroupId=net.java.dev.jna -DartifactId=jna \
+              -Dversion=5.18.1 -Dpackaging=jar
+            mvn install:install-file -Dfile=lib/jna-platform-5.18.1.jar \
+              -DgroupId=net.java.dev.jna -DartifactId=jna-platform \
+              -Dversion=5.18.1 -Dpackaging=jar
+        -->
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>5.18.1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform</artifactId>
+            <version>5.18.1</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <finalName>rfid-tracker</finalName>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+            </plugin>
+
+            <!-- Fat JAR — bundles all dependencies so WMS can use it as a single file -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.nova.rfid.RFIDTrackerApp</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <finalName>rfid-tracker</finalName>
+                    <appendAssemblyId>true</appendAssemblyId>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <mainClass>com.nova.rfid.RFIDTrackerApp</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
