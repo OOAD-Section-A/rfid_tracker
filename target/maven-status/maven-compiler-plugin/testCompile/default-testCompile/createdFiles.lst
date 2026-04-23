@@ -1,0 +1,5 @@
+com\nova\rfid\pattern\structural\CSVExportAdapterTest.class
+com\nova\rfid\exception\RFIDExceptionTest.class
+com\nova\rfid\model\ProductTest.class
+com\nova\rfid\model\ScanRecordTest.class
+com\nova\rfid\pattern\behavioral\TagValidationHandlersTest.class
